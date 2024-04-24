@@ -1,21 +1,35 @@
-import React, { ChangeEvent, useState, MouseEvent } from "react";
-import logo from "./logo.svg";
+import React, {
+  ChangeEvent,
+  useState,
+  MouseEvent,
+  SyntheticEvent,
+} from "react";
 import "./App.css";
 import CardList from "./Components/CardList/CardList";
 import Search from "./Components/Search/Search";
 import { CompanySearch } from "./company";
 import { searchCompanies } from "./api";
+import ListPortfolio from "./Components/Portfolio/ListPortfolio/ListPortfolio";
 
 function App() {
   const [search, setSearch] = useState<string>("");
+  const [portfolioValues, setPortfolioValues] = useState<string[]>([]);
   const [searchResult, setSearchResult] = useState<CompanySearch[]>([]);
   const [serverError, setServerError] = useState<string>("");
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    // setSearch(e.target.value);
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
     // console.log(e);
   };
-  const onClick = async (e: MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const onPortfolioCreate = (e: any) => {
+    e.preventDefault();
+    const exists=portfolioValues.find((value)=>value===e.target[0].value);
+    if(exists) return;
+    const updatePortfolio=[...portfolioValues,e.target[0].value];
+    setPortfolioValues(updatePortfolio);
+  };
+  const onSearchSubmit = async (e: SyntheticEvent) => {
+    e.preventDefault();
     //type sorunu yasarsan SyntethicEvent kullanabilirsin.
     const result = await searchCompanies(search);
     if (typeof result === "string") {
@@ -29,8 +43,17 @@ function App() {
 
   return (
     <div className="App">
-      <Search onClick={onClick} search={search} handleChange={handleChange} />
-      <CardList />
+      <Search
+        onSearchSubmit={onSearchSubmit}
+        search={search}
+        handleSearchChange={handleSearchChange}
+      />
+      <ListPortfolio portfolioValues={portfolioValues}/>
+      <CardList
+        searchResults={searchResult}
+        onPortfolioCreate={onPortfolioCreate}
+      />
+      {serverError && <h1>Unable to connect to API</h1>}
     </div>
   );
 }
