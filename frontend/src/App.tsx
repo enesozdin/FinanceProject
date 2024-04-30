@@ -10,6 +10,8 @@ import Search from "./Components/Search/Search";
 import { CompanySearch } from "./company";
 import { searchCompanies } from "./api";
 import ListPortfolio from "./Components/Portfolio/ListPortfolio/ListPortfolio";
+import Navbar from "./Components/Navbar/Navbar";
+import Hero from "./Components/Hero/Hero";
 
 function App() {
   const [search, setSearch] = useState<string>("");
@@ -23,11 +25,24 @@ function App() {
   };
   const onPortfolioCreate = (e: any) => {
     e.preventDefault();
-    const exists=portfolioValues.find((value)=>value===e.target[0].value);
-    if(exists) return;
-    const updatePortfolio=[...portfolioValues,e.target[0].value];
+    const exists = portfolioValues.find((value) => value === e.target[0].value);
+    if (exists) return;
+    const updatePortfolio = [...portfolioValues, e.target[0].value];
     setPortfolioValues(updatePortfolio);
   };
+
+  const onPortfolioDelete=(e:any)=>{
+    e.preventDefault();
+    const removed=portfolioValues.filter((value)=>{
+      console.log("filter value",value);
+      console.log("filter target value",e.target[0].value);
+      return value !== e.target[0].value;
+    });
+    console.log("after filter value",removed);
+    //removed=value degeri haric dizideki elemanlari icerir
+    setPortfolioValues(removed);
+  }
+
   const onSearchSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
     //type sorunu yasarsan SyntethicEvent kullanabilirsin.
@@ -43,12 +58,13 @@ function App() {
 
   return (
     <div className="App">
+      <Navbar/>
       <Search
         onSearchSubmit={onSearchSubmit}
         search={search}
         handleSearchChange={handleSearchChange}
       />
-      <ListPortfolio portfolioValues={portfolioValues}/>
+      <ListPortfolio portfolioValues={portfolioValues} onPortfolioDelete={onPortfolioDelete}/>
       <CardList
         searchResults={searchResult}
         onPortfolioCreate={onPortfolioCreate}
